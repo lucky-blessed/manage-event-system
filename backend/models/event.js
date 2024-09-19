@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const UserModel = require('./user');
+const UserModel = require("./user");
 
 const EventSchema = new mongoose.Schema(
     {
@@ -21,7 +21,7 @@ const EventSchema = new mongoose.Schema(
         },
         cover: {
             type: String,
-            required: true, //URL or path to the cover image
+            required: true, //URL or path to the cover image.
         },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
