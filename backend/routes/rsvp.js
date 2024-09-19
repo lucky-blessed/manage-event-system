@@ -165,3 +165,28 @@ router.delete('/event/:reservationId', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+router.delete('/user/:id', verifyToken, validIdParam, async (req, res) => {
+    const reservationId = req.params.id;
+    const userId = req.user;
+
+    try {
+        const reseravtion = await Reservation.findById(reservationId);
+        if (!reservation) {
+            return res.status(404).json({ message: 'Reservation not found' });
+        }
+
+        // Check if the user is the owner of the reservation
+        if (reservation.userId.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to delete this reservation.' });
+        }
+
+        await Reservation.deleteOne({ _id: reservationId });
+        res.status(200).json({ message: 'Reservation deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+module.exports = router
