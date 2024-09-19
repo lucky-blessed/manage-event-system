@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const UserModel = require('./user');
-const EventModel = require('./event');
+const mongoose = require("mongoose");
+const UserModel = require("./user");
+const EventModel = require("./event");
 
 const ReservationShema = new mongoose.Schema(
     {
