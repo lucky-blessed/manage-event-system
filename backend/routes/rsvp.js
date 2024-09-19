@@ -96,3 +96,72 @@ router.put('/:id', verifyToken, validIdParam, async (req, res) => {
     }
 });
 
+rounter.get('/user/:eventId', verifyToken, async (req, res) => {
+    const userId = req.user;
+    const { eventId } = req.params;
+
+    try {
+        const reseravtion = await Reservation.findOne({ userId, eventId });
+        if (!reservation) {
+            return res.status(404).json( { message: 'Reservation not found' });
+        }
+
+        res.status(200).json({ reservation });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+router.get('/event/:eventId', verifyToken, async (req, res) => {
+    const userId = req.user;
+    const { eventId } = req.params;
+
+    try {
+        const event = await EventModel.findById(eventId);
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        // Check if the user is the owner of the event
+        if (event.userId.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to view this reservation.' });
+        }
+
+        const reservations = await Reservation.find({ eventId }).populate('userId', 'name email');
+        res.status(200).json({ reservations });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+router.delete('/event/:reservationId', verifyToken, async (req, res) => {
+    const reseravtionId = req.params.reservationId;
+    const userId = req.user;
+
+    try {
+        const reseravtion = await Reservation.findById(reseravtionId);
+        if (!reseravtion) {
+            return res.status(404).json({ message: 'Reservation not found'});
+        }
+
+        const event = await EventModel.findById(reservation.eventId);
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        // Check id the user is the owner of the event
+        if (event.userId.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to delete this reservation.' });
+        }
+
+        await Reservation.deleteOne({ _id: reseravtionId });
+        res.status(200).json({ message: 'Reservation deleted successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
