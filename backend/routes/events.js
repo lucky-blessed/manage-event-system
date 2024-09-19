@@ -1,6 +1,6 @@
 const express = require('express');
 const EventModel = require("../models/event");
-const Reservaation = require("../models/reservations");
+const Reservation = require("../models/reservations");
 const verifyToken = require("../middleware/verify-token");
 const router = express.Router();
 const { fromError } = require("zod-validation-error");
@@ -38,9 +38,6 @@ router.post("/events", verifyToken, convertDateTimeToIso, async (req, res) => {
         res.status(500).json({ Message: "Server error"});
     }
 });
-
-
-
 
 router.get("/events/public", async (req, res) => {
     try {
@@ -116,7 +113,7 @@ router.put("/events/:id", verifyToken, validIdParam, async (req, res) => {
     }
 });
 
-router.delete("events/:id", verifyToken, validIdParam, async (req, res) => {
+router.delete("/events/:id", verifyToken, validIdParam, async (req, res) => {
     const eventId = res.params.id;
     const userId = req.user;
 
