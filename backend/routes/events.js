@@ -39,3 +39,14 @@ router.post("/events", verifyToken, convertDateTimeToIso, async (req, res) => {
     }
 });
 
+
+router.get("/event/public", async (req, res) => {
+    try {
+        const publicEvent = await EventModel.find({ isPublic: true });
+        res.status(200).json(publicEvent);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
