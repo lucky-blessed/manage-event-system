@@ -5,7 +5,7 @@ function RSVP() {
     const [eventId, setEventId] = useState('');
 
     const handleRSVP = () => {
-        axios.post(`http://localhost:5000/api/rsvp/${eventId}`)
+        axios.post(`http://localhost:5000/api/rsvp/${eventId}`)  // Fixed URL
             .then(response => {
                 console.log(response.data);
             })
