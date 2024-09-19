@@ -40,7 +40,7 @@ router.post("/events", verifyToken, convertDateTimeToIso, async (req, res) => {
 });
 
 
-router.get("/event/public", async (req, res) => {
+router.get("/events/public", async (req, res) => {
     try {
         const publicEvent = await EventModel.find({ isPublic: true });
         res.status(200).json(publicEvent);
@@ -50,3 +50,14 @@ router.get("/event/public", async (req, res) => {
     }
 });
 
+router.get('/events/user', verifyToken, async (req, res) => {
+    const userId = req.user;
+
+    try {
+        const userEvents = await EventModel.find({ userId });
+        res.status(200).json({ event: userEvents });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error"});
+    }
+});
