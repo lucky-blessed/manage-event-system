@@ -4,7 +4,7 @@ const Reservaation = require("../models/reservations");
 const verifyToken = require("../middleware/verify-token");
 const router = express.Router();
 const { fromError } = require("zod-validation-error");
-const CreateReservationSchema = require("../schema/create-event-schema");
+const CreateEventSchema = require("../schema/create-event-schema");
 const UpdateEventSchema = require("../schema/update-event-schema");
 const convertDateTimeToIso = require("../middleware/convert-date-to-iso");
 const validIdParam = require('../middleware/valid-id-param');
@@ -35,7 +35,7 @@ router.post("/events", verifyToken, convertDateTimeToIso, async (req, res) => {
         res.status(201).json({ event: newEvent });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ Message: "Server erre"})
+        res.status(500).json({ Message: "Server error"});
     }
 });
 
@@ -118,35 +118,4 @@ router.put("/events/:id", verifyToken, validIdParam, async (req, res) => {
 
 
 
-
-
-
-
-
-outer.delete("/event/:reservationId", verifyToken, async (req, res) => {
-	const reservationId = req.params.reservationId;
-	const userId = req.user;
-
-	try {
-		const reservation = await Reservation.findById(reservationId);
-		if (!reservation) {
-			return res.status(404).json({ message: "Reservation not found" });
-		}
-
-		const event = await EventModel.findById(reservation.eventId);
-		if (!event) {
-			return res.status(404).json({ message: "Event not found" });
-		}
-
-		// Check if the user is the owner of the event
-		if (event.userId.toString() !== userId) {
-			return res.status(403).json({ message: "You are not authorized to delete this reservation" });
-		}
-
-		await Reservation.deleteOne({ _id: reservationId });
-		res.status(200).json({ message: "Reservation deleted successfully" });
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: "Server error" });
-	}
-});
+module.exports = router;
