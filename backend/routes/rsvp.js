@@ -8,6 +8,7 @@ const CreateReservationSchema = require('../schema/create-reservation-schema');
 const UpdateReservationSchema = require('../schema/update-reservation-schema');
 const moment = require('moment');
 const validIdParam = require('../middleware/valid-id-param');
+const reservations = require('../models/reservations');
 
 router.post('/', verifyToken, async (req, res) => {
     const userId = req.user;
@@ -51,6 +52,47 @@ router.post('/', verifyToken, async (req, res) => {
         res.status(201).json({ reseravtion: newReservation});
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error'});
+        res.status(500).json({ message: 'Server error' });
     }
 });
+
+router.put('/:id', verifyToken, validIdParam, async (req, res) => {
+    const reseravtionId = req.params.id;
+    const userId = req.user;
+
+    try {
+        const reseravtion = await Reservation.findById(reseravtionId);
+        if (!reseravtion) {
+            return res.status(404).json({ message: 'Reservation not found' });
+        }
+
+        // Check if the user is the owner of the reservation
+        if (reseravtion.userId.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to update this reservation' });
+        }
+
+        const event = await EventModel.findById(reseravtion.eventId);
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        // Prevent updtes 2hrs before event
+        const now = moment();
+        const eventDate = moment(event.datetime);
+        if (eventDate.diff(now, 'hours') < 2) {
+            return res.status(400).json({ message: 'You cannot update reservations 2hrs before event' });
+        }
+
+        const validation = UpdateReservationSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({ error: fromError(validation.error).toString() });
+        }
+
+        await reservation.save();
+        res.status(200).json({ reservation });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
