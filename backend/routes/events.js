@@ -61,3 +61,19 @@ router.get('/events/user', verifyToken, async (req, res) => {
         res.status(500).json({ message: "Server error"});
     }
 });
+
+
+router.get("/events/:id", verifyToken, validIdParam, async (req, res) => {
+    const eventId = req.params.id;
+
+    try {
+        const event = await EventModel.findById(eventId);
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        res.status(200).json({ event });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
