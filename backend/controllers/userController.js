@@ -1,39 +1,40 @@
 const User = require('../models/user');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
-// Register new user
-const registerUser = async (req, res, next) => {
-    const { username, email, password } = req.body;
+// User signup
+const signup = async (req, res, next) => {
+    const { username, password } = req.body;
 
     try {
-        const user = new User({ username, email, password });
-        const savedUser = await user.save();
-        res.status(201).json({ message: 'User registered successfully', user: savedUser });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, password: hashedPassword });
+        await newUser.save();
+        res.status(201).json({ message: 'User created successfully' });
     } catch (err) {
         next(err);
     }
 };
 
-// Login user
-const loginUser = async (req, res, next) => {
-    const { email, password } = req.body;
+// User login
+const login = async (req, res, next) => {
+    const { username, password } = req.body;
 
     try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
-
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+        res.json({ message: 'Login successful', userId: user._id });
     } catch (err) {
         next(err);
     }
 };
 
 module.exports = {
-    registerUser,
-    loginUser
+    signup,
+    login,
 };
