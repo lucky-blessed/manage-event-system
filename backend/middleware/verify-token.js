@@ -4,7 +4,7 @@ const { replaceOne } = require('../models/user');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 function verifyToken(req, res, next) {
-    const token = req.header('Authoriztion')?.replace('Bearer ', '');
+    const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
         return res.status(401).json({ Message: 'No token, authorization denied' });
